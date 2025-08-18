@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: ev_charging_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: charging_stations
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - ev_charging_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ev_charging_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/charging_stations
+      SECRET_KEY: your-super-secret-key-change-in-production
+      FLASK_ENV: production
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    networks:
+      - ev_charging_network
+    volumes:
+      - ./backend:/app
+    command: >
+      sh -c "
+        sleep 10 &&
+        python seed_data.py &&
+        python app.py
+      "
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ev_charging_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:5000
+    depends_on:
+      - backend
+    networks:
+      - ev_charging_network
+
+volumes:
+  postgres_data:
+
+networks:
+  ev_charging_network:
+    driver: bridge
+
