@@ -1,0 +1,70 @@
+.App {
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Leaflet map styles */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Custom marker styles */
+.custom-div-icon {
+  background: transparent;
+  border: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .App {
+    height: 100vh;
+  }
+}
+
+/* Loading spinner styles */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+/* Station card hover effects */
+.station-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.station-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Custom scrollbar for station list */
+.station-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.station-list-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.station-list-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.station-list-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* App-logo animation kept for potential future use */
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
