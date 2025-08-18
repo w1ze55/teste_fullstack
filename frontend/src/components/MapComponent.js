@@ -3,7 +3,6 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default markers in react-leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -11,27 +10,24 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom icons for different charger types
 const createCustomIcon = (type, status) => {
   let color;
   let iconSymbol;
 
-  // Set color based on status
   switch (status) {
     case 'OPERATIONAL':
-      color = '#4caf50'; // Green
+      color = '#4caf50';
       break;
     case 'MAINTENANCE':
-      color = '#ff9800'; // Orange
+      color = '#ff9800';
       break;
     case 'INACTIVE':
-      color = '#f44336'; // Red
+      color = '#f44336';
       break;
     default:
-      color = '#9e9e9e'; // Gray
+      color = '#9e9e9e';
   }
 
-  // Set icon symbol based on type
   switch (type) {
     case 'AC':
       iconSymbol = '~';
@@ -70,7 +66,6 @@ const createCustomIcon = (type, status) => {
   });
 };
 
-// Component to handle map updates
 function MapUpdater({ stations, selectedStation }) {
   const map = useMap();
 
@@ -88,7 +83,6 @@ function MapUpdater({ stations, selectedStation }) {
   return null;
 }
 
-// Status badge component
 function StatusBadge({ status }) {
   const getStatusColor = (status) => {
     switch (status) {
@@ -132,7 +126,6 @@ function StatusBadge({ status }) {
   );
 }
 
-// Type badge component
 function TypeBadge({ type }) {
   const getTypeColor = (type) => {
     switch (type) {
@@ -178,7 +171,6 @@ function TypeBadge({ type }) {
 }
 
 export default function MapComponent({ stations, selectedStation, onStationSelect }) {
-  // Center on Brazil
   const center = [-14.235, -51.9253];
   const zoom = 4;
 
@@ -231,7 +223,6 @@ export default function MapComponent({ stations, selectedStation, onStationSelec
         ))}
       </MapContainer>
       
-      {/* Legend */}
       <div
         style={{
           position: 'absolute',

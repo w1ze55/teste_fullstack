@@ -2,11 +2,9 @@ from flask import Blueprint, request, jsonify
 from functools import wraps
 from services import AuthService, StationService
 
-# Create blueprints
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 api_bp = Blueprint('api', __name__)
 
-# Authentication decorator
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -22,7 +20,6 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
     return decorated
 
-# Authentication routes
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -50,20 +47,17 @@ def login():
     
     return jsonify({'message': 'Invalid credentials'}), 401
 
-# API Routes for charging stations
 @api_bp.route('/cargas', methods=['GET'])
 def get_charging_stations():
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 50, type=int)
     
-    # Filters
     filters = {
         'type': request.args.get('type'),
         'status': request.args.get('status'),
         'state': request.args.get('state')
     }
     
-    # Remove empty filters
     filters = {k: v for k, v in filters.items() if v}
     
     result = StationService.get_stations(page=page, per_page=per_page, filters=filters)
@@ -105,12 +99,10 @@ def delete_charging_station(current_user, station_id):
     except Exception as e:
         return jsonify({'message': 'Failed to delete station'}), 500
 
-# Health check
 @api_bp.route('/health', methods=['GET'])
 def health_check():
     return jsonify({'status': 'healthy'}), 200
 
-# Error handlers
 @auth_bp.errorhandler(404)
 @api_bp.errorhandler(404)
 def not_found(error):

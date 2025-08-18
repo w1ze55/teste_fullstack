@@ -1,7 +1,6 @@
 from app import create_app
 from models import db, ChargingStation, User
 
-# Sample Brazilian cities with real coordinates
 SAMPLE_STATIONS = [
     {
         'name': 'Estação São Paulo - Centro',
@@ -140,10 +139,8 @@ SAMPLE_STATIONS = [
 def seed_database():
     app = create_app()
     with app.app_context():
-        # Create tables
         db.create_all()
         
-        # Create default users
         if not User.query.filter_by(username='admin').first():
             admin_user = User(username='admin')
             admin_user.set_password('admin123')
@@ -154,7 +151,6 @@ def seed_database():
             regular_user.set_password('user123')
             db.session.add(regular_user)
         
-        # Add sample charging stations
         for station_data in SAMPLE_STATIONS:
             existing_station = ChargingStation.query.filter_by(
                 name=station_data['name']

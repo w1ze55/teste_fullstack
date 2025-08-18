@@ -15,20 +15,16 @@ def create_app(config_name=None):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     
-    # Initialize extensions
     db.init_app(app)
     migrate = Migrate(app, db)
     CORS(app)
     
-    # Register blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(api_bp)
     
-    # Create tables and default user
     with app.app_context():
         db.create_all()
         
-        # Create a default admin user for testing
         if not User.query.filter_by(username='admin').first():
             admin_user = User(username='admin')
             admin_user.set_password('admin123')
@@ -37,7 +33,6 @@ def create_app(config_name=None):
     
     return app
 
-# Create the app instance
 app = create_app()
 
 if __name__ == '__main__':

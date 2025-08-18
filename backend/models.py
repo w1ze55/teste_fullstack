@@ -36,7 +36,7 @@ class ChargingStation(db.Model):
     power_kw = db.Column(db.Float, nullable=False)
     num_spots = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Enum('OPERATIONAL', 'MAINTENANCE', 'INACTIVE', name='station_status'), nullable=False)
-    state = db.Column(db.String(2), nullable=False)  # UF (state code)
+    state = db.Column(db.String(2), nullable=False)
     city = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

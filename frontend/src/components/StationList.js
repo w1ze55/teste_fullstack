@@ -261,10 +261,9 @@ export default function StationList({
 
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header with count */}
       <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
         <Typography variant="body2" color="text.secondary">
-          {pagination.total} estação{pagination.total !== 1 ? 'ões' : ''} encontrada{pagination.total !== 1 ? 's' : ''}
+          {pagination.total} estações encontradas
         </Typography>
         {pagination.totalPages > 1 && (
           <Typography variant="caption" color="text.secondary">
@@ -273,7 +272,6 @@ export default function StationList({
         )}
       </Box>
 
-      {/* Station List */}
       <Box sx={{ flex: 1, overflow: 'auto' }}>
         <List sx={{ p: 0 }}>
           {stations.map((station, index) => (
@@ -291,7 +289,6 @@ export default function StationList({
         </List>
       </Box>
 
-      {/* Pagination */}
       {pagination.totalPages > 1 && (
         <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
           <Pagination

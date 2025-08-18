@@ -17,7 +17,6 @@ import {
 } from '@mui/material';
 import { useForm, Controller } from 'react-hook-form';
 
-// Brazilian states
 const BRAZILIAN_STATES = [
   { code: 'AC', name: 'Acre' },
   { code: 'AL', name: 'Alagoas' },
@@ -104,7 +103,6 @@ export default function StationForm({ open, onClose, onSave, station }) {
       setLoading(true);
       setError('');
       
-      // Convert numeric fields
       const formattedData = {
         ...data,
         latitude: parseFloat(data.latitude),

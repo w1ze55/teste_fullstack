@@ -47,7 +47,6 @@ class StationService:
         """Validate station data."""
         errors = []
         
-        # Validate required fields only if not partial update
         if not partial:
             required_fields = ['name', 'latitude', 'longitude', 'charger_type', 'power_kw', 'num_spots', 'status', 'state', 'city']
             for field in required_fields:
@@ -57,7 +56,6 @@ class StationService:
             if errors:
                 return errors
         
-        # Validate data types and ranges for provided fields
         if 'latitude' in data and not (-90 <= data['latitude'] <= 90):
             errors.append('Latitude must be between -90 and 90')
         
@@ -138,12 +136,10 @@ class StationService:
         """Update an existing charging station."""
         station = ChargingStation.query.get_or_404(station_id)
         
-        # Validate only the provided fields (partial validation)
         errors = StationService.validate_station_data(data, partial=True)
         if errors:
             raise ValueError('; '.join(errors))
         
-        # Update fields
         for field in ['name', 'latitude', 'longitude', 'power_kw', 'num_spots', 'state', 'city']:
             if field in data:
                 setattr(station, field, data[field])

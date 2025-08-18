@@ -47,7 +47,7 @@ export default function Dashboard() {
   const theme = useTheme();
   useEffect(() => {
     fetchStations();
-  }, [filters, pagination.page]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filters, pagination.page]);
 
   const fetchStations = async () => {
     try {

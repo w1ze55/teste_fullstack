@@ -11,7 +11,6 @@ def client():
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
-            # Create a test user
             test_user = User(username='testuser')
             test_user.set_password('testpass')
             db.session.add(test_user)
@@ -127,7 +126,7 @@ class TestChargingStations:
         """Test creating station with invalid latitude."""
         station_data = {
             'name': 'Test Station',
-            'latitude': 95.0,  # Invalid latitude
+            'latitude': 95.0,
             'longitude': -46.6333,
             'charger_type': 'AC',
             'power_kw': 22.0,
@@ -151,7 +150,7 @@ class TestChargingStations:
             'latitude': -23.5505,
             'longitude': -46.6333,
             'charger_type': 'AC',
-            'power_kw': -10.0,  # Invalid power
+            'power_kw': -10.0,
             'num_spots': 4,
             'status': 'OPERATIONAL',
             'state': 'SP',
@@ -167,7 +166,6 @@ class TestChargingStations:
     
     def test_get_station_by_id(self, client, auth_headers):
         """Test getting a specific station by ID."""
-        # First create a station
         station_data = {
             'name': 'Test Station',
             'latitude': -23.5505,
@@ -185,7 +183,6 @@ class TestChargingStations:
                                      headers=auth_headers)
         station_id = json.loads(create_response.data)['id']
         
-        # Then get it by ID
         response = client.get(f'/cargas/{station_id}')
         assert response.status_code == 200
         data = json.loads(response.data)
@@ -199,7 +196,6 @@ class TestChargingStations:
     
     def test_update_station(self, client, auth_headers):
         """Test updating a station."""
-        # First create a station
         station_data = {
             'name': 'Test Station',
             'latitude': -23.5505,
@@ -217,7 +213,6 @@ class TestChargingStations:
                                      headers=auth_headers)
         station_id = json.loads(create_response.data)['id']
         
-        # Then update it
         update_data = {
             'name': 'Updated Station',
             'power_kw': 50.0
@@ -233,7 +228,6 @@ class TestChargingStations:
     
     def test_delete_station(self, client, auth_headers):
         """Test deleting a station."""
-        # First create a station
         station_data = {
             'name': 'Test Station',
             'latitude': -23.5505,
@@ -251,20 +245,17 @@ class TestChargingStations:
                                      headers=auth_headers)
         station_id = json.loads(create_response.data)['id']
         
-        # Then delete it
         response = client.delete(f'/cargas/{station_id}',
                                headers=auth_headers)
         assert response.status_code == 200
         data = json.loads(response.data)
         assert 'deleted successfully' in data['message']
         
-        # Verify it's gone
         get_response = client.get(f'/cargas/{station_id}')
         assert get_response.status_code == 404
     
     def test_filter_stations_by_type(self, client, auth_headers):
         """Test filtering stations by charger type."""
-        # Create stations with different types
         stations = [
             {
                 'name': 'AC Station',
@@ -296,7 +287,6 @@ class TestChargingStations:
                        content_type='application/json',
                        headers=auth_headers)
         
-        # Filter by AC type
         response = client.get('/cargas?type=AC')
         assert response.status_code == 200
         data = json.loads(response.data)
