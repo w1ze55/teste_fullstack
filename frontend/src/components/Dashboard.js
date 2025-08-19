@@ -17,12 +17,13 @@ import {
   Logout as LogoutIcon,
   Add as AddIcon
 } from '@mui/icons-material';
+import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import MapComponent from './MapComponent';
 import StationList from './StationList';
 import StationForm from './StationForm';
 import FilterPanel from './FilterPanel';
-import axios from 'axios';
 
 const DRAWER_WIDTH = 400;
 
@@ -68,7 +69,7 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem('token');
       if (token) {
-        const response = await axios.get('http://localhost:5000/auth/permissions', {
+        const response = await axios.get(API_ENDPOINTS.PERMISSIONS, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUserPermissions(response.data.permissions);
@@ -90,7 +91,7 @@ export default function Dashboard() {
       if (filters.status) params.append('status', filters.status);
       if (filters.state) params.append('state', filters.state);
 
-      const response = await axios.get(`http://localhost:5000/api/cargas?${params}`);
+      const response = await axios.get(`${API_ENDPOINTS.STATIONS}?${params}`);
       const data = response.data;
       
       setStations(data.stations);
@@ -123,10 +124,10 @@ export default function Dashboard() {
       const headers = { Authorization: `Bearer ${token}` };
       
       if (editingStation) {
-        await axios.put(`http://localhost:5000/api/cargas/${editingStation.id}`, stationData, { headers });
+        await axios.put(API_ENDPOINTS.STATION_BY_ID(editingStation.id), stationData, { headers });
         showToast('✅ Estação atualizada com sucesso!', 'success', 3000);
       } else {
-        await axios.post('http://localhost:5000/api/cargas', stationData, { headers });
+        await axios.post(API_ENDPOINTS.STATIONS, stationData, { headers });
         showToast('✅ Estação criada com sucesso!', 'success', 3000);
       }
       
@@ -180,7 +181,7 @@ export default function Dashboard() {
     }
 
     try {
-      await axios.delete(`http://localhost:5000/api/cargas/${stationId}`, {
+      await axios.delete(API_ENDPOINTS.STATION_BY_ID(stationId), {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       await fetchStations();

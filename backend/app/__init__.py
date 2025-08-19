@@ -19,7 +19,19 @@ def create_app(config_name=None):
 
     db.init_app(app)
     migrate = Migrate(app, db)
-    CORS(app)
+    
+    cors_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000"
+    ]
+    
+    if config_name == 'production':
+        cors_origins.extend([
+            "https://ev-charging-frontend.onrender.com",
+            "https://*.onrender.com"
+        ])
+    
+    CORS(app, origins=cors_origins, supports_credentials=True)
     
 
     register_blueprints(app)
