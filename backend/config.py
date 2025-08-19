@@ -10,6 +10,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///charging_stations.db'
 
 class ProductionConfig(Config):
     DEBUG = False

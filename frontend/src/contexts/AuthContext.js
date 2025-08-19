@@ -19,7 +19,11 @@ export const AuthProvider = ({ children }) => {
     const token = localStorage.getItem('token');
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setUser({ token, username: localStorage.getItem('username') });
+      setUser({ 
+        token, 
+        username: localStorage.getItem('username'),
+        role: localStorage.getItem('userRole')
+      });
     }
     setLoading(false);
   }, []);
@@ -31,13 +35,19 @@ export const AuthProvider = ({ children }) => {
         password
       });
       
-      const { token, username: returnedUsername } = response.data;
+      const { token, user: userData } = response.data;
       
       localStorage.setItem('token', token);
-      localStorage.setItem('username', returnedUsername);
+      localStorage.setItem('username', userData.username);
+      localStorage.setItem('userRole', userData.role);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
-      setUser({ token, username: returnedUsername });
+      setUser({ 
+        token, 
+        username: userData.username, 
+        role: userData.role,
+        ...userData 
+      });
       return { success: true };
     } catch (error) {
       return { 
@@ -65,6 +75,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('userRole');
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
   };

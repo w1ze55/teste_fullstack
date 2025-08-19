@@ -7,7 +7,10 @@ import {
   Button,
   Drawer,
   IconButton,
-  useTheme
+  useTheme,
+  Snackbar,
+  Alert,
+  LinearProgress
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -42,12 +45,38 @@ export default function Dashboard() {
     totalPages: 1,
     total: 0
   });
+  const [toast, setToast] = useState({
+    open: false,
+    message: '',
+    severity: 'info',
+    progress: 0
+  });
+  const [userPermissions, setUserPermissions] = useState({
+    can_manage_stations: false,
+    is_admin: false
+  });
 
   const { user, logout } = useAuth();
   const theme = useTheme();
+  
   useEffect(() => {
     fetchStations();
+    fetchUserPermissions();
   }, [filters, pagination.page]);
+
+  const fetchUserPermissions = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (token) {
+        const response = await axios.get('http://localhost:5000/auth/permissions', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUserPermissions(response.data.permissions);
+      }
+    } catch (err) {
+      console.error('Error fetching permissions:', err);
+    }
+  };
 
   const fetchStations = async () => {
     try {
@@ -61,7 +90,7 @@ export default function Dashboard() {
       if (filters.status) params.append('status', filters.status);
       if (filters.state) params.append('state', filters.state);
 
-      const response = await axios.get(`http://localhost:5000/cargas?${params}`);
+      const response = await axios.get(`http://localhost:5000/api/cargas?${params}`);
       const data = response.data;
       
       setStations(data.stations);
@@ -80,11 +109,25 @@ export default function Dashboard() {
   };
 
   const handleStationSave = async (stationData) => {
+    if (!userPermissions.can_manage_stations) {
+      showToast(
+        '🚫 Acesso negado! Apenas administradores podem criar/editar estações.',
+        'error',
+        5000
+      );
+      return;
+    }
+
     try {
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      
       if (editingStation) {
-        await axios.put(`http://localhost:5000/cargas/${editingStation.id}`, stationData);
+        await axios.put(`http://localhost:5000/api/cargas/${editingStation.id}`, stationData, { headers });
+        showToast('✅ Estação atualizada com sucesso!', 'success', 3000);
       } else {
-        await axios.post('http://localhost:5000/cargas', stationData);
+        await axios.post('http://localhost:5000/api/cargas', stationData, { headers });
+        showToast('✅ Estação criada com sucesso!', 'success', 3000);
       }
       
       await fetchStations();
@@ -92,22 +135,93 @@ export default function Dashboard() {
       setEditingStation(null);
     } catch (err) {
       console.error('Error saving station:', err);
-      throw new Error(err.response?.data?.message || 'Failed to save station');
+      if (err.response?.status === 403) {
+        showToast(
+          '🚫 Acesso negado! Apenas administradores podem gerenciar estações.',
+          'error',
+          5000
+        );
+      } else {
+        throw new Error(err.response?.data?.message || 'Failed to save station');
+      }
     }
   };
 
+  const showToast = (message, severity = 'info', duration = 5000) => {
+    setToast({
+      open: true,
+      message,
+      severity,
+      progress: 0
+    });
+
+    // Animar barra de progresso
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += (100 / duration) * 100; // Atualiza a cada 100ms
+      setToast(prev => ({ ...prev, progress }));
+      
+      if (progress >= 100) {
+        clearInterval(interval);
+        setToast(prev => ({ ...prev, open: false }));
+      }
+    }, 100);
+  };
+
   const handleStationDelete = async (stationId) => {
+    // Verificar se o usuário tem permissão para deletar
+    if (!userPermissions.can_manage_stations) {
+      showToast(
+        '🚫 Acesso negado! Apenas administradores podem excluir estações de carregamento.',
+        'error',
+        5000
+      );
+      return;
+    }
+
     try {
-      await axios.delete(`http://localhost:5000/cargas/${stationId}`);
+      await axios.delete(`http://localhost:5000/api/cargas/${stationId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       await fetchStations();
+      showToast('✅ Estação excluída com sucesso!', 'success', 3000);
     } catch (err) {
       console.error('Error deleting station:', err);
-      setError('Failed to delete station');
+      if (err.response?.status === 403) {
+        showToast(
+          '🚫 Acesso negado! Apenas administradores podem excluir estações.',
+          'error',
+          5000
+        );
+      } else {
+        showToast('❌ Erro ao excluir estação. Tente novamente.', 'error', 4000);
+      }
     }
   };
 
   const handleStationEdit = (station) => {
+    if (!userPermissions.can_manage_stations) {
+      showToast(
+        '🚫 Acesso negado! Apenas administradores podem editar estações.',
+        'error',
+        5000
+      );
+      return;
+    }
     setEditingStation(station);
+    setShowForm(true);
+  };
+
+  const handleAddStation = () => {
+    if (!userPermissions.can_manage_stations) {
+      showToast(
+        '🚫 Acesso negado! Apenas administradores podem adicionar estações.',
+        'error',
+        5000
+      );
+      return;
+    }
+    setEditingStation(null);
     setShowForm(true);
   };
 
@@ -134,10 +248,7 @@ export default function Dashboard() {
           variant="contained"
           startIcon={<AddIcon />}
           fullWidth
-          onClick={() => {
-            setEditingStation(null);
-            setShowForm(true);
-          }}
+          onClick={handleAddStation}
           sx={{ mb: 2 }}
         >
           Add Station
@@ -183,9 +294,20 @@ export default function Dashboard() {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             ⚡ EV Charging Stations Dashboard
           </Typography>
-          <Typography variant="body2" sx={{ mr: 2 }}>
-            Welcome, {user?.username}
-          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', mr: 2 }}>
+            <Typography variant="body2">
+              Welcome, {user?.username}
+            </Typography>
+            {user?.role && (
+              <Typography variant="caption" sx={{ 
+                color: user.role === 'admin' ? '#ffeb3b' : '#90caf9',
+                fontWeight: 'bold',
+                textTransform: 'uppercase'
+              }}>
+                {user.role === 'admin' ? '👑 Admin' : '👤 User'}
+              </Typography>
+            )}
+          </Box>
           <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
             Logout
           </Button>
@@ -250,6 +372,46 @@ export default function Dashboard() {
         onSave={handleStationSave}
         station={editingStation}
       />
+
+      {/* Toast com temporizador */}
+      <Snackbar
+        open={toast.open}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        sx={{ 
+          '& .MuiSnackbarContent-root': {
+            minWidth: '400px',
+            maxWidth: '600px'
+          }
+        }}
+      >
+        <Alert 
+          severity={toast.severity}
+          variant="filled"
+          sx={{
+            width: '100%',
+            fontSize: '1rem',
+            '& .MuiAlert-message': {
+              width: '100%'
+            }
+          }}
+        >
+          <Box>
+            <Typography variant="body1" sx={{ mb: 1 }}>
+              {toast.message}
+            </Typography>
+            <LinearProgress 
+              variant="determinate" 
+              value={toast.progress}
+              sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                '& .MuiLinearProgress-bar': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                }
+              }}
+            />
+          </Box>
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

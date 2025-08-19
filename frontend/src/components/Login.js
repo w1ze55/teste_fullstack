@@ -144,7 +144,7 @@ export default function Login() {
                   <Typography variant="body2" color="text.secondary">
                     <strong>Demo Credentials:</strong><br />
                     Username: admin | Password: admin123<br />
-                    Username: user | Password: user123
+                    Username: user | Password: user123<br />
                   </Typography>
                 </Box>
               </Box>
