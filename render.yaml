@@ -3,7 +3,6 @@ services:
   - type: web
     name: ev-charging-backend
     env: python
-    plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: python run.py
@@ -21,7 +20,6 @@ services:
   - type: web
     name: ev-charging-frontend
     env: static
-    plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: ./build
@@ -35,4 +33,3 @@ services:
 databases:
   # PostgreSQL Database
   - name: ev-charging-db
-    plan: free
