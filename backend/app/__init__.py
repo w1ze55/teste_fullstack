@@ -27,11 +27,16 @@ def create_app(config_name=None):
     
     if config_name == 'production':
         cors_origins.extend([
+            "https://ev-charging-frontend-amts.onrender.com",
             "https://ev-charging-frontend.onrender.com",
             "https://*.onrender.com"
         ])
     
-    CORS(app, origins=cors_origins, supports_credentials=True)
+    CORS(app, 
+         origins=cors_origins, 
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
     
 
     register_blueprints(app)
