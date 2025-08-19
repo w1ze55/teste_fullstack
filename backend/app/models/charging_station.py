@@ -1,4 +1,3 @@
-
 from app.utils.database import db
 from .base import BaseModel
 

@@ -44,7 +44,6 @@ def register():
             'message': 'An unexpected error occurred during registration'
         }), 500
 
-
 @auth_bp.route('/login', methods=['POST'])
 def login():
     try:
@@ -85,7 +84,6 @@ def login():
             'message': 'An unexpected error occurred during login'
         }), 500
 
-
 @auth_bp.route('/verify', methods=['GET'])
 def verify_token():
     try:
@@ -116,7 +114,6 @@ def verify_token():
             'message': 'An unexpected error occurred during token verification'
         }), 500
 
-
 @auth_bp.route('/profile', methods=['GET'])
 def get_profile():
     try:
@@ -145,7 +142,6 @@ def get_profile():
             'error': 'Profile retrieval failed',
             'message': 'An unexpected error occurred while retrieving profile'
         }), 500
-
 
 @auth_bp.route('/permissions', methods=['GET'])
 def get_user_permissions():
